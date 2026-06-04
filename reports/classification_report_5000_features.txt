@@ -1,0 +1,19 @@
+Features: 5000
+Accuracy: 0.9048
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    Negative       0.63      0.86      0.72      5656
+        Notr       0.94      0.97      0.96     17092
+    Positive       0.97      0.87      0.92     26217
+
+    accuracy                           0.90     48965
+   macro avg       0.85      0.90      0.87     48965
+weighted avg       0.92      0.90      0.91     48965
+
+
+Confusion Matrix:
+[[ 4858   244   554]
+ [  310 16628   154]
+ [ 2603   796 22818]]

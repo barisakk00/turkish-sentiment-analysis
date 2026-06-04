@@ -1,18 +1,18 @@
-Accuracy: 0.9265
+Accuracy: 0.8372
 
 Classification Report:
               precision    recall  f1-score   support
 
-    Negative       0.70      0.88      0.78      5656
-        Notr       0.95      0.98      0.97     17092
-    Positive       0.97      0.90      0.93     26217
+    Negative       0.48      0.77      0.59      5656
+        Notr       0.88      0.94      0.91     17092
+    Positive       0.96      0.78      0.86     26217
 
-    accuracy                           0.93     48965
-   macro avg       0.88      0.92      0.89     48965
-weighted avg       0.93      0.93      0.93     48965
+    accuracy                           0.84     48965
+   macro avg       0.77      0.83      0.79     48965
+weighted avg       0.87      0.84      0.85     48965
 
 
 Confusion Matrix:
-[[ 4977   142   537]
- [  153 16803   136]
- [ 1956   677 23584]]
+[[ 4349   628   679]
+ [  708 16133   251]
+ [ 4064  1643 20510]]

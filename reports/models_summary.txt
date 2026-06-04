@@ -1,0 +1,9 @@
+SUMMARY OF ALL TRAINED MODELS
+============================================================
+
+ features  accuracy                                        model_path                                      report_path
+     1000    0.8734  models\turkish_sentiment_model_1000_features.pkl  reports\classification_report_1000_features.txt
+     5000    0.9048  models\turkish_sentiment_model_5000_features.pkl  reports\classification_report_5000_features.txt
+    10000    0.9141 models\turkish_sentiment_model_10000_features.pkl reports\classification_report_10000_features.txt
+    20000    0.9223 models\turkish_sentiment_model_20000_features.pkl reports\classification_report_20000_features.txt
+    30000    0.9265 models\turkish_sentiment_model_30000_features.pkl reports\classification_report_30000_features.txt

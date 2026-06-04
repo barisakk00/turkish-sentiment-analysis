@@ -62,9 +62,15 @@ turkish-sentiment-analysis/
 │   └── test.csv
 │
 ├── notebooks/
+│   └── eda.ipynb
 │
 ├── reports/
-│   └── classification_report.txt
+│   ├── classification_report_1000_features.txt
+│   ├── classification_report_5000_features.txt
+│   ├── classification_report_10000_features.txt
+│   ├── classification_report_20000_features.txt
+│   ├── classification_report_30000_features.txt
+│   └── models_summary.txt
 │
 ├── src/
 │   ├── check_data.py
@@ -72,7 +78,11 @@ turkish-sentiment-analysis/
 │   └── predict.py
 │
 ├── models/
-│   └── turkish_sentiment_model.pkl
+│   ├── turkish_sentiment_model_1000_features.pkl
+│   ├── turkish_sentiment_model_5000_features.pkl
+│   ├── turkish_sentiment_model_10000_features.pkl
+│   ├── turkish_sentiment_model_20000_features.pkl
+│   └── turkish_sentiment_model_30000_features.pkl
 │
 ├── .gitignore
 ├── README.md
@@ -81,15 +91,18 @@ turkish-sentiment-analysis/
 
 ## Methodology
 
-The project follows a basic machine learning workflow:
+The project follows a machine learning workflow with iterative feature optimization:
 
 1. Load the train and test datasets
 2. Clean the Turkish text data
-3. Convert text into numerical features using TF-IDF
-4. Train a Logistic Regression model
-5. Evaluate the model on the test set
-6. Save the trained model
-7. Predict sentiment for new Turkish texts
+3. Iterate through different feature counts (1000, 5000, 10000, 20000, 30000):
+   - Convert text into numerical features using TF-IDF with varying max_features
+   - Train a Logistic Regression model (keeping other hyperparameters constant)
+   - Evaluate the model on the test set
+   - Save the trained model with feature count in filename
+   - Generate evaluation reports for each model
+4. Compare results across all feature count variations
+5. Predict sentiment for new Turkish texts using the best model
 
 ## Text Preprocessing
 
@@ -103,16 +116,36 @@ The preprocessing step includes:
 
 ## Model
 
-The baseline model uses a machine learning pipeline consisting of:
+The project trains multiple Logistic Regression models using a machine learning pipeline with different feature counts:
 
-- `TfidfVectorizer`
-- `LogisticRegression`
+- `TfidfVectorizer` with variable max_features (1000, 5000, 10000, 20000, 30000)
+- `LogisticRegression` with fixed hyperparameters:
+  - `max_iter=1000`
+  - `class_weight="balanced"`
+  - `ngram_range=(1, 2)`
+  - `min_df=3`
 
-The TF-IDF vectorizer converts text into numerical features, while Logistic Regression performs the sentiment classification task.
+This iterative approach allows for comparing model performance across different feature dimensions while keeping other parameters constant. Each model is saved separately with its feature count in the filename for easy comparison and selection.
 
 ## Results
 
-The baseline Logistic Regression model achieved the following results on the test set:
+Multiple models were trained with different feature counts. The models show how feature dimensionality affects model performance:
+
+### Model Comparison Summary
+
+| Features | Accuracy | Model File | Report File |
+|---|---:|---|---|
+| 1,000 | [To be updated after training] | `turkish_sentiment_model_1000_features.pkl` | `classification_report_1000_features.txt` |
+| 5,000 | [To be updated after training] | `turkish_sentiment_model_5000_features.pkl` | `classification_report_5000_features.txt` |
+| 10,000 | [To be updated after training] | `turkish_sentiment_model_10000_features.pkl` | `classification_report_10000_features.txt` |
+| 20,000 | [To be updated after training] | `turkish_sentiment_model_20000_features.pkl` | `classification_report_20000_features.txt` |
+| 30,000 | [To be updated after training] | `turkish_sentiment_model_30000_features.pkl` | `classification_report_30000_features.txt` |
+
+After training, check `reports/models_summary.txt` for detailed accuracy comparisons of all models.
+
+### Previous Baseline Results
+
+The initial 30,000-feature Logistic Regression model achieved the following results on the test set:
 
 | Metric | Score |
 |---|---:|
@@ -191,23 +224,38 @@ data/train.csv
 data/test.csv
 ```
 
-### 6. Train the model
+### 6. Train the models
 
 ```bash
 python src/train_model.py
 ```
 
-After training, the model will be saved under:
+This command will train 5 models with different feature counts (1000, 5000, 10000, 20000, 30000). Each model will be saved separately.
+
+After training, the models will be saved under:
 
 ```text
-models/turkish_sentiment_model.pkl
+models/
+├── turkish_sentiment_model_1000_features.pkl
+├── turkish_sentiment_model_5000_features.pkl
+├── turkish_sentiment_model_10000_features.pkl
+├── turkish_sentiment_model_20000_features.pkl
+└── turkish_sentiment_model_30000_features.pkl
 ```
 
-The classification report will be saved under:
+The classification reports for each model will be saved under:
 
 ```text
-reports/classification_report.txt
+reports/
+├── classification_report_1000_features.txt
+├── classification_report_5000_features.txt
+├── classification_report_10000_features.txt
+├── classification_report_20000_features.txt
+├── classification_report_30000_features.txt
+└── models_summary.txt
 ```
+
+The `models_summary.txt` file contains a comparison of all model accuracies for easy comparison.
 
 ### 7. Run prediction
 
@@ -241,13 +289,15 @@ This is a baseline machine learning project. Although the overall accuracy is hi
 
 Planned improvements include:
 
-- Comparing multiple machine learning models
-- Adding Naive Bayes and Linear SVM classifiers
+- Comparing results across different feature dimensions to find optimal feature count
+- Testing additional machine learning models (Naive Bayes, Linear SVM, etc.)
+- Hyperparameter tuning beyond feature count
 - Improving Turkish text preprocessing
 - Adding Turkish stopword removal
-- Performing hyperparameter tuning
+- Implementing cross-validation for more robust evaluation
 - Deploying the model using Streamlit or Hugging Face Spaces
 - Fine-tuning a Turkish BERT model for comparison
+- Analyzing feature importance and impact on model decisions
 
 ## Author
 

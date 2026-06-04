@@ -12,11 +12,14 @@ from pathlib import Path
 
 TRAIN_PATH = "data/train.csv"
 TEST_PATH = "data/test.csv"
-MODEL_PATH = "models/turkish_sentiment_model.pkl"
-REPORT_PATH = "reports/classification_report.txt"
+MODELS_DIR = "models"
+REPORTS_DIR = "reports"
 
 TEXT_COLUMN = "text"
 LABEL_COLUMN = "label"
+
+# Feature counts to iterate through
+FEATURE_COUNTS = [1000, 5000, 10000, 20000, 30000]
 
 
 def clean_text(text: str) -> str:
@@ -56,53 +59,89 @@ def main():
     print("\nTest label distribution:")
     print(y_test.value_counts())
 
-    model = Pipeline([
-        ("tfidf", TfidfVectorizer(
-            max_features=30000,
-            ngram_range=(1, 2),
-            min_df=3
-        )),
-        ("classifier", LogisticRegression(
-            max_iter=1000,
-            class_weight="balanced"
-        ))
-    ])
+    # Create directories if they don't exist
+    Path(MODELS_DIR).mkdir(exist_ok=True)
+    Path(REPORTS_DIR).mkdir(exist_ok=True)
 
-    print("\nTraining model...")
-    model.fit(X_train, y_train)
+    # Store results for comparison
+    all_results = []
 
-    print("\nEvaluating model...")
-    y_pred = model.predict(X_test)
+    # Iterate through different feature counts
+    for feature_count in FEATURE_COUNTS:
+        print(f"\n{'='*60}")
+        print(f"Training model with {feature_count} features...")
+        print(f"{'='*60}")
 
-    accuracy = accuracy_score(y_test, y_pred)
+        model = Pipeline([
+            ("tfidf", TfidfVectorizer(
+                max_features=feature_count,
+                ngram_range=(1, 2),
+                min_df=3
+            )),
+            ("classifier", LogisticRegression(
+                max_iter=1000,
+                class_weight="balanced"
+            ))
+        ])
 
-    print("\nAccuracy:", round(accuracy, 4))
+        # Train the model
+        model.fit(X_train, y_train)
 
-    report = classification_report(y_test, y_pred)
-    matrix = confusion_matrix(y_test, y_pred)
+        # Evaluate the model
+        y_pred = model.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
 
-    print("\nClassification Report:")
-    print(report)
+        print(f"Accuracy: {round(accuracy, 4)}")
 
-    print("\nConfusion Matrix:")
-    print(matrix)
+        report = classification_report(y_test, y_pred)
+        matrix = confusion_matrix(y_test, y_pred)
 
-    Path("reports").mkdir(exist_ok=True)
+        print("\nClassification Report:")
+        print(report)
 
-    with open(REPORT_PATH, "w", encoding="utf-8") as f:
-        f.write(f"Accuracy: {round(accuracy, 4)}\n\n")
-        f.write("Classification Report:\n")
-        f.write(report)
-        f.write("\n\nConfusion Matrix:\n")
-        f.write(str(matrix))
+        print("\nConfusion Matrix:")
+        print(matrix)
 
-    print(f"\nReport saved to: {REPORT_PATH}")
+        # Save model with feature count in name
+        model_name = f"turkish_sentiment_model_{feature_count}_features.pkl"
+        model_path = Path(MODELS_DIR) / model_name
+        joblib.dump(model, model_path)
+        print(f"\nModel saved to: {model_path}")
 
-    print("\nConfusion Matrix:")
-    print(confusion_matrix(y_test, y_pred))
+        # Save report with feature count in name
+        report_name = f"classification_report_{feature_count}_features.txt"
+        report_path = Path(REPORTS_DIR) / report_name
+        with open(report_path, "w", encoding="utf-8") as f:
+            f.write(f"Features: {feature_count}\n")
+            f.write(f"Accuracy: {round(accuracy, 4)}\n\n")
+            f.write("Classification Report:\n")
+            f.write(report)
+            f.write("\n\nConfusion Matrix:\n")
+            f.write(str(matrix))
+        print(f"Report saved to: {report_path}")
 
-    joblib.dump(model, MODEL_PATH)
-    print(f"\nModel saved to: {MODEL_PATH}")
+        # Store results for comparison
+        all_results.append({
+            "features": feature_count,
+            "accuracy": round(accuracy, 4),
+            "model_path": str(model_path),
+            "report_path": str(report_path)
+        })
+
+    # Print summary of all models
+    print(f"\n{'='*60}")
+    print("SUMMARY OF ALL MODELS")
+    print(f"{'='*60}")
+    summary_df = pd.DataFrame(all_results)
+    print(summary_df.to_string(index=False))
+
+    # Save summary to file
+    summary_path = Path(REPORTS_DIR) / "models_summary.txt"
+    with open(summary_path, "w", encoding="utf-8") as f:
+        f.write("SUMMARY OF ALL TRAINED MODELS\n")
+        f.write("=" * 60 + "\n\n")
+        f.write(summary_df.to_string(index=False))
+    print(f"\nSummary saved to: {summary_path}")
 
 
 if __name__ == "__main__":
