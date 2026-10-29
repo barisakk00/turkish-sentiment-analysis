@@ -1,13 +1,16 @@
-import re
+from pathlib import Path
+
 import joblib
 import pandas as pd
-
-from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.pipeline import Pipeline
 
-from pathlib import Path
+try:
+    from .text_processing import clean_text
+except ImportError:  # Support direct execution with ``python src/train_model.py``.
+    from text_processing import clean_text
 
 
 TRAIN_PATH = "data/train.csv"
@@ -20,19 +23,6 @@ LABEL_COLUMN = "label"
 
 # Feature counts to iterate through
 FEATURE_COUNTS = [1000, 5000, 10000, 20000, 30000]
-
-
-def clean_text(text: str) -> str:
-    """
-    Basic Turkish text cleaning.
-    Keeps Turkish characters and removes URLs, numbers, and unnecessary symbols.
-    """
-    text = str(text).lower()
-    text = re.sub(r"http\S+|www\S+", " ", text)
-    text = re.sub(r"[^a-zA-ZçğıöşüÇĞİÖŞÜ\s]", " ", text)
-    text = re.sub(r"\s+", " ", text).strip()
-    return text
-
 
 def main():
     train_df = pd.read_csv(TRAIN_PATH)
