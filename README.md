@@ -12,13 +12,13 @@ The project includes:
 - TF-IDF feature extraction
 - Logistic Regression classification
 - Model evaluation using accuracy, precision, recall, and F1-score
-- Sentiment prediction on new Turkish texts
+- Command-line sentiment prediction with confidence scores and JSON output
 
 ## Technologies Used
 
 - Python
 - pandas
-- scikit-learn
+- scikit-learn 1.8.0
 - TF-IDF
 - Logistic Regression
 - VS Code
@@ -73,9 +73,14 @@ turkish-sentiment-analysis/
 │   └── models_summary.txt
 │
 ├── src/
+│   ├── __init__.py
 │   ├── check_data.py
 │   ├── train_model.py
-│   └── predict.py
+│   ├── predict.py
+│   └── text_processing.py
+│
+├── tests/
+│   └── test_predict.py
 │
 ├── models/
 │   ├── turkish_sentiment_model_1000_features.pkl
@@ -85,6 +90,8 @@ turkish-sentiment-analysis/
 │   └── turkish_sentiment_model_30000_features.pkl
 │
 ├── .gitignore
+├── CHANGELOG.md
+├── LICENSE
 ├── README.md
 └── requirements.txt
 ```
@@ -103,6 +110,7 @@ The project follows a machine learning workflow with iterative feature optimizat
    - Generate evaluation reports for each model
 4. Compare results across all feature count variations
 5. Predict sentiment for new Turkish texts using the best model
+6. Return the predicted label and, when supported by the model, its confidence score
 
 ## Text Preprocessing
 
@@ -259,8 +267,38 @@ The `models_summary.txt` file contains a comparison of all model accuracies for 
 
 ### 7. Run prediction
 
+Pass one or more Turkish texts directly:
+
 ```bash
-python src/predict.py
+python src/predict.py "Bu ürün gerçekten çok güzel." "Hiç beğenmedim."
+```
+
+If no text is provided, the command prompts for one input. The default model is
+the 30,000-feature model, which has the best recorded test accuracy. Use
+`--model` to select a different saved model:
+
+```bash
+python src/predict.py --model models/turkish_sentiment_model_10000_features.pkl "Kargo zamanında geldi."
+```
+
+For batch prediction, provide a UTF-8 file containing one text per line:
+
+```bash
+python src/predict.py --file inputs.txt
+```
+
+Use `--json` for machine-readable output:
+
+```bash
+python src/predict.py --json "Film fena değildi ama daha iyi olabilirdi."
+```
+
+## Testing
+
+Run the unit test suite from the repository root:
+
+```bash
+python -m unittest discover -v
 ```
 
 ## Example Predictions
@@ -299,8 +337,14 @@ Planned improvements include:
 - Fine-tuning a Turkish BERT model for comparison
 - Analyzing feature importance and impact on model decisions
 
-## Author
+## License
 
-Barış Ak  
-Artificial Intelligence and Data Engineering Student  
-Istanbul University
+The source code is available under the [MIT License](LICENSE). The dataset and
+trained model artifacts are not included in that license. Obtain the dataset
+from its original provider and follow its separate usage terms.
+
+## Developer
+
+Baris AK
+
+Artificial Intelligence and Data Engineering Student
